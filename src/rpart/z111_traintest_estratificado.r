@@ -45,7 +45,7 @@ dataset <- dataset[ foto_mes==202103 ]
 
 # particiono estratificadamente el dataset
 # Cambiar por la primer semilla de cada uno !
-particionar(dataset, division = c(7, 3), 
+particionar(dataset, division = c(7, 3),
   agrupa = "clase_ternaria", seed = PARAM$semilla) # aqui se usa SU semilla
 
 

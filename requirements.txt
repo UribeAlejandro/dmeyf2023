@@ -1,0 +1,3 @@
+jupysql
+duckdb
+duckdb-engine
