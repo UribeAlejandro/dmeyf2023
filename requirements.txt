@@ -1,3 +1,10 @@
+kaggle
 jupysql
 duckdb
 duckdb-engine
+jupyterlab
+jupyterlab-git
+pre-commit
+ruff
+black
+isort
