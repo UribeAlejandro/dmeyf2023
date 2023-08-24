@@ -21,7 +21,7 @@ setwd("/home/aleb/dmeyf23/")
 semillas <- c(17, 19, 23, 29, 31)
 
 # Cargamos el dataset
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/interim/competencia_01.csv")
 dtrain <- dataset[foto_mes == 202103]
 
 # Generamos el primer modelo
@@ -244,7 +244,7 @@ ggplot(hojasordenadas, aes(x = fpr, y = tpr)) +
 ## ---------------------------
 
 ## NOTA: Como es muy complejo reflejar en palabras una curva, se suele calcular
-## el área bajo su curva (auc) y reflejar ese valor como métrica de la 
+## el área bajo su curva (auc) y reflejar ese valor como métrica de la
 ## calidad del modelo.
 
 # Calculamos su área, necesita instalar el siguiente paquete

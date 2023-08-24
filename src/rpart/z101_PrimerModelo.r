@@ -10,7 +10,7 @@ require("rpart.plot")
 # setwd("X:\\gdrive\\uba2023\\") # Establezco el Working Directory
 
 # cargo el dataset
-dataset <- fread("../../datasets/processed/competencia_01.csv")
+dataset <- fread("./datasets/processed/competencia_01.csv")
 
 dtrain <- dataset[foto_mes == 202103] # defino donde voy a entrenar
 dapply <- dataset[foto_mes == 202105] # defino donde voy a aplicar el modelo
