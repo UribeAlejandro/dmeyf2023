@@ -35,18 +35,20 @@ particionar <- function(
 
 # Aqui se debe poner la carpeta de la computadora local
 # Establezco el Working Directory
-setwd("X:\\gdrive\\uba2023\\")
+# setwd("X:\\gdrive\\uba2023\\")
 
 # cargo los datos
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/interim/competencia_01.csv")
 
 # trabajo solo con los datos con clase, es decir 202103
-dataset <- dataset[ foto_mes==202103 ]
+dataset <- dataset[foto_mes == 202103]
 
 # particiono estratificadamente el dataset
 # Cambiar por la primer semilla de cada uno !
-particionar(dataset, division = c(7, 3),
-  agrupa = "clase_ternaria", seed = PARAM$semilla) # aqui se usa SU semilla
+particionar(dataset,
+  division = c(7, 3),
+  agrupa = "clase_ternaria", seed = PARAM$semilla
+) # aqui se usa SU semilla
 
 
 param_basicos <- list(

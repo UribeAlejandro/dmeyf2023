@@ -78,13 +78,13 @@ ArbolEstimarGanancia <- function(semilla, param_basicos) {
 #------------------------------------------------------------------------------
 
 # Aqui se debe poner la carpeta de la computadora local
-setwd("X:\\gdrive\\uba2023\\") # Establezco el Working Directory
+# setwd("X:\\gdrive\\uba2023\\") # Establezco el Working Directory
 
 # cargo los datos
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/interim/competencia_01.csv")
 
 # trabajo solo con los datos con clase, es decir 202103
-dataset <- dataset[foto_mes==202103]
+dataset <- dataset[foto_mes == 202103]
 
 
 param_basicos <- list(
