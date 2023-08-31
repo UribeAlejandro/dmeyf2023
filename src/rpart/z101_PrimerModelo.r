@@ -12,8 +12,8 @@ require("rpart.plot")
 # cargo el dataset
 dataset <- fread("./datasets/interim/competencia_01.csv")
 
-dtrain <- dataset[foto_mes == 202103] # defino donde voy a entrenar
-dapply <- dataset[foto_mes == 202105] # defino donde voy a aplicar el modelo
+dtrain <- dataset[foto_mes == "2021-03-01"] # defino donde voy a entrenar
+dapply <- dataset[foto_mes == "2021-05-01"] # defino donde voy a aplicar el modelo
 
 print("jere1")
 # genero el modelo,  aqui se construye el arbol
