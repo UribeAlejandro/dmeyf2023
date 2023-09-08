@@ -12,10 +12,9 @@ require("rpart.plot")
 # cargo el dataset
 dataset <- fread("./datasets/interim/competencia_01.csv")
 
-dtrain <- dataset[foto_mes == "2021-03-01"] # defino donde voy a entrenar
-dapply <- dataset[foto_mes == "2021-05-01"] # defino donde voy a aplicar el modelo
+dtrain <- dataset[foto_mes == "202103"] # defino donde voy a entrenar
+dapply <- dataset[foto_mes == "202105"] # defino donde voy a aplicar el modelo
 
-print("jere1")
 # genero el modelo,  aqui se construye el arbol
 # quiero predecir clase_ternaria a partir de el resto de las variables
 modelo <- rpart(
@@ -28,15 +27,12 @@ modelo <- rpart(
         maxdepth = 3
 ) # profundidad maxima del arbol
 
-print("jere")
-
 # grafico el arbol
 prp(modelo,
         extra = 101, digits = -5,
         branch = 1, type = 4, varlen = 0, faclen = 0
 )
 
-print("jere")
 # aplico el modelo a los datos nuevos
 prediccion <- predict(
         object = modelo,
@@ -59,8 +55,6 @@ dapply[, Predicted := as.numeric(prob_baja2 > 1 / 40)]
 # primero creo la carpeta donde va el experimento
 dir.create("./exp/")
 dir.create("./exp/KA2001")
-
-print(head(dapply))
 
 # solo los campos para Kaggle
 fwrite(dapply[, list(numero_de_cliente, Predicted)],

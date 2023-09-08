@@ -210,10 +210,10 @@ EstimarGanancia <- function(x) {
 # Aqui empieza el programa
 
 # Establezco el Working Directory inicial
-setwd(PARAM$home)
+# setwd(PARAM$home)
 
 # cargo los datos
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/interim/competencia_01.csv")
 # entreno en 202103
 dataset <- dataset[foto_mes == 202103]
 

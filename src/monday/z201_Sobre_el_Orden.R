@@ -16,7 +16,7 @@ require("ggplot2")
 
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf23/")
+# setwd("/home/aleb/dmeyf23/")
 # Poner sus semillas
 semillas <- c(17, 19, 23, 29, 31)
 
@@ -25,13 +25,15 @@ dataset <- fread("./datasets/interim/competencia_01.csv")
 dtrain <- dataset[foto_mes == 202103]
 
 # Generamos el primer modelo
-arbol <- rpart(formula =    "clase_ternaria ~ .",
-                 data =      dtrain,
-                 xval =      0,
-                 cp =       -0.3,
-                 minsplit =  0,
-                 minbucket = 1,
-                 maxdepth =  4)
+arbol <- rpart(
+  formula = "clase_ternaria ~ .",
+  data = dtrain,
+  xval = 0,
+  cp = -0.3,
+  minsplit = 0,
+  minbucket = 1,
+  maxdepth = 4
+)
 
 print(arbol)
 
@@ -60,34 +62,40 @@ tablahojas <- function(arbol, datos, target = "clase_ternaria") {
   # Tomamos las posicion de las hojas que aplican a los registro de nuestro ds
   row_leaf <- unique(arbol$where)
   leaves <- data.table(row_frame = row_leaf)
-  setkey(leaves,row_frame)
+  setkey(leaves, row_frame)
   # Relacion target ~ hojas
   leaves_target <- dcast(
     data.table(
       target = target_vector,
-      leaf = arbol$where),
+      leaf = arbol$where
+    ),
     leaf ~ target, length,
-    value.var = "target")
+    value.var = "target"
+  )
   setkey(leaves_target, leaf)
   # Juntamos todo
   leaves_target <- leaves_target[leaves, nomatch = 0]
   # Sumamos algunas columnas calculadas
   colnames(leaves_target[, classes, with = FALSE])[apply(
-    leaves_target[, classes, with = FALSE], 1, which.max)]
+    leaves_target[, classes, with = FALSE], 1, which.max
+  )]
   # Clase mayoritaria
   leaves_target[, y := colnames(
-                    leaves_target[, classes, with = FALSE]
-                  )[apply(leaves_target[, classes, with = FALSE],
-                   1, which.max)]]
+    leaves_target[, classes, with = FALSE]
+  )[apply(
+    leaves_target[, classes, with = FALSE],
+    1, which.max
+  )]]
   # Cantidad de elementos de la hoja
   leaves_target[, TOTAL := unlist(Reduce(function(a, b) Map(`+`, a, b), .SD)),
-                 .SDcols = classes]
+    .SDcols = classes
+  ]
   leaves_target
 }
 
 # Ejecutamos la función sobre nuestro modelo, con nuestros datos
 hojas <- tablahojas(arbol, dtrain)
-print(hojas[,])
+print(hojas[, ])
 
 ## Preguntas
 ## - ¿Con qué criterio eligió la clase de cada hoja que determino la
@@ -110,9 +118,10 @@ print(hojas)
 ## ---------------------------
 
 print(hojas[ganancia > 0, .(
-    ganancia = sum(ganancia),
-    enviados = sum(TOTAL),
-    sevan = sum(`BAJA+2`))])
+  ganancia = sum(ganancia),
+  enviados = sum(TOTAL),
+  sevan = sum(`BAJA+2`)
+)])
 
 ## Preguntas
 ## Si enviaramos todos los casos de las hojas con ganancia positiva
@@ -127,20 +136,21 @@ print(hojas[ganancia > 0, .(
 
 # Creamos un nuevo target binario
 dtrain[, clase_binaria := ifelse(
-                            clase_ternaria == "BAJA+2",
-                                "evento",
-                                "noevento"
-                            )]
+  clase_ternaria == "BAJA+2",
+  "evento",
+  "noevento"
+)]
 # Borramos el target viejo
 dtrain[, clase_ternaria := NULL]
 
 arbolbinario <- rpart("clase_binaria ~ .",
-                 data =      dtrain,
-                 xval =      0,
-                 cp =       -0.3,
-                 minsplit =  0,
-                 minbucket = 5,
-                 maxdepth =  4)
+  data = dtrain,
+  xval = 0,
+  cp = -0.3,
+  minsplit = 0,
+  minbucket = 5,
+  maxdepth = 4
+)
 # Transformamos las hojas a una tabla
 hojasbinario <- tablahojas(arbolbinario, dtrain, "clase_binaria")
 
@@ -148,8 +158,10 @@ hojasbinario <- tablahojas(arbolbinario, dtrain, "clase_binaria")
 hojasbinario[, ganancia := evento * 273000 - 7000 * noevento]
 print(hojasbinario)
 # Por último sumarizamos
-print(hojasbinario[ganancia > 0,
- .(ganancia = sum(ganancia), enviados = sum(TOTAL), sevan = sum(evento))])
+print(hojasbinario[
+  ganancia > 0,
+  .(ganancia = sum(ganancia), enviados = sum(TOTAL), sevan = sum(evento))
+])
 
 ## Pregunta
 ## - ¿Considera que la agrupación de clases fue positiva para la  ganancia?
@@ -163,7 +175,7 @@ hojasbinario[, p_evento := evento / (evento + noevento)]
 
 # Ordenamos de forma descendiente las probabilidades, ya que nos interesan
 # ante todo las probabilidades más altas
-hojasordenadas <- hojasbinario[order(-p_evento),]
+hojasordenadas <- hojasbinario[order(-p_evento), ]
 
 # Calculamos la ganancia acumulada, desde con la probabilidad desde la primera
 # fila con probabilidad más alta hasta la fila N, para cada fila.
@@ -184,9 +196,9 @@ print(hojasordenadas)
 ## Step 7: Graficando la ganancia
 ## ---------------------------
 
-ggplot(hojasordenadas, aes(x = p_evento ,y = gan_acum)) +
-     scale_x_reverse() +
-     geom_line(size = 1)
+ggplot(hojasordenadas, aes(x = p_evento, y = gan_acum)) +
+  scale_x_reverse() +
+  geom_line(size = 1)
 
 ## Pregunta
 ## ¿Cómo interpretamos este gráfico?
@@ -206,12 +218,12 @@ ggplot(hojasordenadas, aes(x = p_evento ,y = gan_acum)) +
 ## punto de corte posible.
 
 # Vamos a sumar las variables `tp`, `tn`, `fp` y `fn`
-hojasordenadas[, c("evento_acum","noevento_acum") :=
-                  list(cumsum(evento),cumsum(noevento))]
+hojasordenadas[, c("evento_acum", "noevento_acum") :=
+  list(cumsum(evento), cumsum(noevento))]
 total_evento <- hojasordenadas[, sum(evento)]
 total_noevento <- hojasordenadas[, sum(noevento)]
 hojasordenadas[, c("evento_restantes", "noevento_restantes") :=
-            list(total_evento - evento_acum, total_noevento - noevento_acum)]
+  list(total_evento - evento_acum, total_noevento - noevento_acum)]
 
 hojasordenadas[, tp := evento_acum]
 hojasordenadas[, tn := noevento_restantes]
@@ -251,7 +263,7 @@ ggplot(hojasordenadas, aes(x = fpr, y = tpr)) +
 # install.packages("geometry")
 require("geometry")
 
-x <- c(hojasordenadas$fpr,1)
+x <- c(hojasordenadas$fpr, 1)
 y <- c(hojasordenadas$tpr, 0)
 # El valor de la auc
 print(polyarea(x, y))

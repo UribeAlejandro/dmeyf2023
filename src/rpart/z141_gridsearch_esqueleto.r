@@ -115,37 +115,45 @@ archivo_salida <- "./exp/HT2020/gridsearch.txt"
 cat(
   file = archivo_salida,
   sep = "",
-  "max_depth", "\t",
+  "cp", "\t",
   "min_split", "\t",
+  "min_bucket", "\t",
+  "max_depth", "\t",
   "ganancia_promedio", "\n"
 )
 
 
 # itero por los loops anidados para cada hiperparametro
 
-for (vmax_depth in c(4, 6, 8, 10, 12, 14)) {
-  for (vmin_split in c(1000, 800, 600, 400, 200, 100, 50, 20, 10)) {
-    # notar como se agrega
+for (vcp in c(-1, 0)) {
+  for (vmax_depth in c(4, 5, 6, 7, 8, 10, 12, 14, 16)) {
+    for (vmin_split in c(2, 4, 8, 10, 15, 20, 30, 50, 100, 150, 200, 300, 400)) {
+      for (vmin_bucket in unique(as.integer(c(1, 2, 3, 4, 5, vmin_split / 10, vmin_split / 5, vmin_split / 3, vmin_split / 2)))) {
+        # notar como se agrega
 
-    # vminsplit  minima cantidad de registros en un nodo para hacer el split
-    param_basicos <- list(
-      "cp" = -0.5, # complejidad minima
-      "minsplit" = vmin_split,
-      "minbucket" = 5, # minima cantidad de registros en una hoja
-      "maxdepth" = vmax_depth
-    ) # profundidad máxima del arbol
+        # vminsplit  minima cantidad de registros en un nodo para hacer el split
+        param_basicos <- list(
+          "cp" = vcp, # complejidad minima
+          "minsplit" = vmin_split,
+          "minbucket" = vmin_bucket, # minima cantidad de registros en una hoja
+          "maxdepth" = vmax_depth
+        ) # profundidad máxima del arbol
 
-    # Un solo llamado, con la semilla 17
-    ganancia_promedio <- ArbolesMontecarlo(ksemillas, param_basicos)
+        # Un solo llamado, con la semilla 17
+        ganancia_promedio <- ArbolesMontecarlo(ksemillas, param_basicos)
 
-    # escribo los resultados al archivo de salida
-    cat(
-      file = archivo_salida,
-      append = TRUE,
-      sep = "",
-      vmax_depth, "\t",
-      vmin_split, "\t",
-      ganancia_promedio, "\n"
-    )
+        # escribo los resultados al archivo de salida
+        cat(
+          file = archivo_salida,
+          append = TRUE,
+          sep = "",
+          vcp, "\t",
+          vmin_split, "\t",
+          vmin_bucket, "\t",
+          vmax_depth, "\t",
+          ganancia_promedio, "\n"
+        )
+      }
+    }
   }
 }

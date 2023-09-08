@@ -5,7 +5,7 @@
 ## Step 1: Cargando los datos y las librerías
 ## ---------------------------
 ##
-## Success is a lousy teacher. It seduces smart people into thinking they can't 
+## Success is a lousy teacher. It seduces smart people into thinking they can't
 ## lose.
 ## --- Bill Gates
 
@@ -24,21 +24,21 @@ require("DiceKriging")
 require("mlrMBO")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf23")
+# setwd("/home/aleb/dmeyf23")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(102191, 200177, 410551, 552581, 892237)
 
 # Cargamos el dataset
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/iterim/competencia_01.csv")
 
 # Nos quedamos solo con el 202101
 dataset <- dataset[foto_mes == 202103]
 # Creamos una clase binaria
 dataset[, clase_binaria := ifelse(
-                            clase_ternaria == "BAJA+2",
-                                "evento",
-                                "noevento"
-                            )]
+  clase_ternaria == "BAJA+2",
+  "evento",
+  "noevento"
+)]
 # Borramos el target viejo
 dataset[, clase_ternaria := NULL]
 
@@ -47,9 +47,10 @@ set.seed(semillas[1])
 
 # Particionamos de forma estratificada
 in_training <- caret::createDataPartition(dataset$clase_binaria,
-                     p = 0.70, list = FALSE)
-dtrain  <-  dataset[in_training, ]
-dtest   <-  dataset[-in_training, ]
+  p = 0.70, list = FALSE
+)
+dtrain <- dataset[in_training, ]
+dtest <- dataset[-in_training, ]
 
 ## ---------------------------
 ## Step 2: Nuestra pizza: Un modelo
@@ -58,12 +59,13 @@ dtest   <-  dataset[-in_training, ]
 # Calculamos cuanto tarda un modelo "promedio" entrenar.
 start_time <- Sys.time()
 modelo <- rpart(clase_binaria ~ .,
-                data = dtrain,
-                xval = 0,
-                cp = 0,
-                minsplit = 20,
-                minbucket = 10,
-                maxdepth = 10)
+  data = dtrain,
+  xval = 0,
+  cp = 0,
+  minsplit = 20,
+  minbucket = 10,
+  maxdepth = 10
+)
 pred_testing <- predict(modelo, dtest, type = "prob")
 end_time <- Sys.time()
 model_time <- end_time - start_time
@@ -72,8 +74,8 @@ print(model_time)
 
 ganancia <- function(probabilidades, clase) {
   return(sum(
-    (probabilidades >= 0.025) * ifelse(clase == "evento", 273000, -7000))
-  )
+    (probabilidades >= 0.025) * ifelse(clase == "evento", 273000, -7000)
+  ))
 }
 
 print("La ganancia NORMALIZADA de nuestro modelo es:")
@@ -138,29 +140,32 @@ plot(dist_lhs)
 ## ---------------------------
 
 # Armamos una función para modelar con el fin de simplificar el código futuro
-modelo_rpart <- function(train, test, cp =  0, ms = 20, mb = 1, md = 10) {
-    modelo <- rpart(clase_binaria ~ ., data = train,
-                    xval = 0,
-                    cp = cp,
-                    minsplit = ms,
-                    minbucket = mb,
-                    maxdepth = md)
+modelo_rpart <- function(train, test, cp = 0, ms = 20, mb = 1, md = 10) {
+  modelo <- rpart(clase_binaria ~ .,
+    data = train,
+    xval = 0,
+    cp = cp,
+    minsplit = ms,
+    minbucket = mb,
+    maxdepth = md
+  )
 
-    test_prediccion <- predict(modelo, test, type = "prob")
-    roc_pred <-  ROCR::prediction(test_prediccion[, "evento"],
-                    test$clase_binaria,
-                                  label.ordering = c("noevento", "evento"))
-    auc_t <-  ROCR::performance(roc_pred, "auc")
+  test_prediccion <- predict(modelo, test, type = "prob")
+  roc_pred <- ROCR::prediction(test_prediccion[, "evento"],
+    test$clase_binaria,
+    label.ordering = c("noevento", "evento")
+  )
+  auc_t <- ROCR::performance(roc_pred, "auc")
 
-    unlist(auc_t@y.values)
+  unlist(auc_t@y.values)
 }
 
 # Función para tomar un muestra dejando todos los elementos de la clase BAJA+2
 tomar_muestra <- function(datos, resto = 10000) {
-      t <- datos$clase_binaria == "evento"
-      r <- rep(FALSE, length(datos$clase_binaria))
-      r[!t][sample.int(resto, n = (length(t) - sum(t)))] <- TRUE
-      t | r
+  t <- datos$clase_binaria == "evento"
+  r <- rep(FALSE, length(datos$clase_binaria))
+  r[!t][sample.int(resto, n = (length(t) - sum(t)))] <- TRUE
+  t | r
 }
 
 set.seed(semillas[1])
@@ -208,13 +213,16 @@ experimento_rpart <- function(ds, semillas, cp = 0, ms = 20, mb = 1, md = 10) {
   auc <- c()
   for (s in semillas) {
     set.seed(s)
-    in_training <- caret::createDataPartition(ds$clase_binaria, p = 0.70,
-        list = FALSE)
-    train  <-  ds[in_training, ]
-    test   <-  ds[-in_training, ]
+    in_training <- caret::createDataPartition(ds$clase_binaria,
+      p = 0.70,
+      list = FALSE
+    )
+    train <- ds[in_training, ]
+    test <- ds[-in_training, ]
     train_sample <- tomar_muestra(train)
-    r <- modelo_rpart(train[train_sample,], test, 
-                    cp = cp, ms = ms, mb = mb, md = md)
+    r <- modelo_rpart(train[train_sample, ], test,
+      cp = cp, ms = ms, mb = mb, md = md
+    )
     auc <- c(auc, r)
   }
   mean(auc)
@@ -234,20 +242,23 @@ espacio_busqueda_1[, 2] <- floor(200 * espacio_busqueda_1[, 2]) + 2
 resultados_random_search <- data.table()
 for (e in 1:cantidad_puntos) {
   r <- experimento_rpart(dataset, semillas,
-                        ms = espacio_busqueda_1[e, 2],
-                        md = espacio_busqueda_1[e, 1])
-  resultados_random_search <- rbindlist(list(resultados_random_search,
-                  data.table(
-                    md = espacio_busqueda_1[e, 1],
-                    ms = espacio_busqueda_1[e, 2],
-                    auc = r)
+    ms = espacio_busqueda_1[e, 2],
+    md = espacio_busqueda_1[e, 1]
+  )
+  resultados_random_search <- rbindlist(list(
+    resultados_random_search,
+    data.table(
+      md = espacio_busqueda_1[e, 1],
+      ms = espacio_busqueda_1[e, 2],
+      auc = r
+    )
   ))
 }
 
 print(resultados_random_search)
 ggplot(resultados_random_search, aes(x = md, y = ms, color = auc)) +
-    scale_color_gradient(low = "blue", high = "red") +
-    geom_point(aes(size = auc))
+  scale_color_gradient(low = "blue", high = "red") +
+  geom_point(aes(size = auc))
 
 
 ## Preguntas
@@ -268,14 +279,18 @@ obj_fun <- makeSingleObjectiveFunction(
 
 ctrl <- makeMBOControl()
 ctrl <- setMBOControlTermination(ctrl, iters = 10L)
-ctrl <- setMBOControlInfill(ctrl, crit = makeMBOInfillCritEI(),
-                           opt = "focussearch")
+ctrl <- setMBOControlInfill(ctrl,
+  crit = makeMBOInfillCritEI(),
+  opt = "focussearch"
+)
 
 lrn <- makeMBOLearner(ctrl, obj_fun)
 design <- generateDesign(6L, getParamSet(obj_fun), fun = lhs::maximinLHS)
 
-run <- exampleRun(obj_fun, design = design, learner = lrn,
-                 control = ctrl, points.per.dim = 100, show.info = TRUE)
+run <- exampleRun(obj_fun,
+  design = design, learner = lrn,
+  control = ctrl, points.per.dim = 100, show.info = TRUE
+)
 
 # Ejecutar de a uno
 plotExampleRun(run, iters = 1, densregion = TRUE, pause = FALSE)
@@ -295,14 +310,15 @@ plotExampleRun(run, iters = 10, densregion = TRUE, pause = FALSE)
 resultados_maxdepth <- data.table()
 
 for (v in 4:20) {
-    r <- data.table(
-      md = v,
-      auc = experimento_rpart(dataset, semillas, md = v)
-    )
-    resultados_maxdepth <- rbindlist(list(resultados_maxdepth, r))
+  r <- data.table(
+    md = v,
+    auc = experimento_rpart(dataset, semillas, md = v)
+  )
+  resultados_maxdepth <- rbindlist(list(resultados_maxdepth, r))
 }
 
-ggplot(resultados_maxdepth, aes(md, auc)) + geom_point()
+ggplot(resultados_maxdepth, aes(md, auc)) +
+  geom_point()
 
 ## ---------------------------
 ## Step 9: Buscando con una Opt. Bayesiana para 1 parámetro
@@ -317,7 +333,7 @@ obj_fun <- makeSingleObjectiveFunction(
   minimize = FALSE,
   fn = obj_fun_md,
   par.set = makeParamSet(
-    makeIntegerParam("maxdepth",  lower = 4L, upper = 20L)
+    makeIntegerParam("maxdepth", lower = 4L, upper = 20L)
   ),
   # noisy = TRUE,
   has.simple.signature = FALSE
@@ -346,17 +362,18 @@ print(run_md)
 
 set.seed(semillas[1])
 obj_fun_md_ms <- function(x) {
-  experimento_rpart(dataset, semillas
-            , md = x$maxdepth
-            , ms = x$minsplit)
+  experimento_rpart(dataset, semillas,
+    md = x$maxdepth,
+    ms = x$minsplit
+  )
 }
 
 obj_fun <- makeSingleObjectiveFunction(
   minimize = FALSE,
   fn = obj_fun_md_ms,
   par.set = makeParamSet(
-    makeIntegerParam("maxdepth",  lower = 4L, upper = 20L),
-    makeIntegerParam("minsplit",  lower = 1L, upper = 200L)
+    makeIntegerParam("maxdepth", lower = 4L, upper = 20L),
+    makeIntegerParam("minsplit", lower = 1L, upper = 200L)
     # makeNumericParam <- para parámetros continuos
   ),
   # noisy = TRUE,
@@ -382,4 +399,5 @@ print(run_md_ms)
 
 ## Visualizamos
 iter <- as.data.frame(run_md_ms$opt.path)
-ggplot(iter, aes(y=minsplit,x=maxdepth, color=prop.type)) + geom_point(aes(size = y))
+ggplot(iter, aes(y = minsplit, x = maxdepth, color = prop.type)) +
+  geom_point(aes(size = y))
