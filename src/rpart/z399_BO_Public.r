@@ -3,7 +3,7 @@
 # este script AUN no entrena en un dataset con oversampling de los BAJA+2
 
 # dedicado a Federico Idoeta, Impossible is Nothing,  02-sep-2022
-
+print(getwd())
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -11,6 +11,7 @@ gc() # garbage collection
 
 require("data.table")
 require("rlist")
+require("imbalance")
 
 require("rpart")
 require("parallel")
@@ -25,7 +26,7 @@ PARAM <- list()
 PARAM$experimento <- "HT3990"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-PARAM$BO_iter <- 24 # iteraciones inteligentes   24= 40 - 4*4
+PARAM$BO_iter <- 64 # iteraciones inteligentes   24= 40 - 4*4
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
@@ -108,7 +109,8 @@ ArbolSimple <- function(data, param, iteracion) {
   modelo <- rpart("clase_binaria ~ . - clase_ternaria",
     data = dtrain,
     xval = 0,
-    control = param2
+    control = param2,
+    weights = pesos
   )
 
   # aplico el modelo a los datos de testing
@@ -173,10 +175,14 @@ EstimarGanancia <- function(x) {
 # Aqui empieza el programa
 
 # Establezco el Working Directory
-# setwd("~/buckets/b1/")
+# setwd("/Users/uribe/Documents/Code/University/2do_Cuatri/DM_EyF/dmeyf2023")
 
 # cargo los datos
 dataset <- fread("./datasets/interim/competencia_01.csv")
+dataset$clase_ternaria <- as.factor(dataset$clase_ternaria)
+
+dataset$var1 <- dataset$ctrx_quarter < 18
+dataset$var1 <- dataset$mcuentas_saldo < -1388.2
 
 # defino la clase_binaria2
 dataset[, clase_binaria := ifelse(clase_ternaria == "CONTINUA", "NEG", "POS")]
@@ -184,7 +190,7 @@ dataset[, clase_binaria := ifelse(clase_ternaria == "CONTINUA", "NEG", "POS")]
 dtrain <- dataset[foto_mes == 202103]
 dapply <- dataset[foto_mes == 202105]
 
-dapply <- dapply[, clase_ternaria := NA]
+pesos <- copy(dtrain[, ifelse(clase_ternaria == "CONTINUA", 1.0, 100.0)])
 
 # creo la carpeta donde va el experimento
 #  HT  representa  Hiperparameter Tuning
@@ -256,5 +262,12 @@ if (!file.exists(archivo_BO)) {
   )
 } else {
   run <- mboContinue(archivo_BO)
+  # op <- as.data.frame(run$opt.path)
+  # design <- op[, c("minsplit", "minbucket", "maxdepth", "corte", "y")]
+  # # res2 <- mbo(obj.fun, design = design, control = ctrl)
+  # opt.state <- run$final.opt.state
+  # opt.state$opt.problem$control <- setMBOControlTermination(opt.state$opt.problem$control, iters = 100)
+  # opt.state$state <- "iter"
+  # res3 <- mboContinue(run$final.opt.state)
 }
 # retomo en caso que ya exista
