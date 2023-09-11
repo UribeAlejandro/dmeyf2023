@@ -11,7 +11,6 @@ gc() # garbage collection
 
 require("data.table")
 require("rlist")
-require("imbalance")
 
 require("rpart")
 require("parallel")
@@ -99,7 +98,7 @@ loguear <- function(reg, arch = NA, folder = "./work/", ext = ".txt",
 #----------------------------------------------------------------------------
 # param tiene los hiperparametros del arbol
 
-ArbolSimple <- function(data, param, iteracion) {
+ArbolSimple <- function(data, param, iteracion, pesos) {
   param2 <- copy(param)
   param2$cp <- -1
   param2$minsplit <- param$minsplit
@@ -116,10 +115,7 @@ ArbolSimple <- function(data, param, iteracion) {
   # aplico el modelo a los datos de testing
   # aplico el modelo sobre los datos de testing
   # quiero que me devuelva probabilidades
-  prediccion <- predict(modelo,
-    dapply,
-    type = "prob"
-  )
+
 
   # esta es la probabilidad de baja
   prob_baja <- prediccion[, "POS"]
