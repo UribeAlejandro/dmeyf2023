@@ -37,7 +37,7 @@ PARAM <- list()
 
 PARAM$experimento <- "HT5230"
 
-PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+PARAM$input$dataset <- "./datasets/competencia_02.csv"
 
  # los meses en los que vamos a entrenar
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
@@ -218,7 +218,7 @@ EstimarGanancia_lightgbm <- function(x) {
 # Aqui empieza el programa
 
 # Aqui se debe poner la carpeta de la computadora local
-setwd("~/buckets/b1/") # Establezco el Working Directory
+# setwd("~/buckets/b1/") # Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar el modelo
 dataset <- fread(PARAM$input$dataset)

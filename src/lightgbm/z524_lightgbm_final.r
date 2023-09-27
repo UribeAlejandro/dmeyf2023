@@ -16,7 +16,7 @@ require("lightgbm")
 PARAM <- list()
 PARAM$experimento <- "KA5240"
 
-PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+PARAM$input$dataset <- "./datasets/competencia_02.csv"
 
 # meses donde se entrena el modelo
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
@@ -36,7 +36,7 @@ PARAM$finalmodel$max_bin <- 31
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # Aqui empieza el programa
-setwd("~/buckets/b1")
+# setwd("~/buckets/b1")
 
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
