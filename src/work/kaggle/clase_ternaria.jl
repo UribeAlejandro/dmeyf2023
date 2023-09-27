@@ -1,8 +1,12 @@
-using CSV,  DataFrames
+import Pkg;
+Pkg.add("CSV");
+Pkg.add("DataFrames");
+
+using CSV,  DataFrames;
 
 periodo_anterior(x::Integer) =  x % 100 > 1  ?  x-1  : 12 + (div(x,100) -1) * 100
 
-df = CSV.read("datasets/raw/competencia_02_crudo.csv", DataFrame)
+df = CSV.read("datasets/competencia_02_crudo.csv", DataFrame)
 sort!(df, [:numero_de_cliente, :foto_mes])
 
 global periodo_ultimo = maximum( df.foto_mes )
@@ -27,4 +31,4 @@ for i in 1:last
   end
 end
 
-CSV.write( "datasets/processed/competencia_02.csv", df )
+CSV.write( "datasets/competencia_02.csv", df )
