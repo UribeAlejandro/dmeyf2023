@@ -31,4 +31,4 @@ for i in 1:last
   end
 end
 
-CSV.write( "datasets/competencia_02.csv", df )
+CSV.write( "datasets/competencia_02_clase_ternaria.csv", df )

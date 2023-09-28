@@ -1,4 +1,4 @@
-# Este script esta pensado para correr en Google Cloud
+p# Este script esta pensado para correr en Google Cloud
 #   8 vCPU
 #  32 GB memoria RAM
 
