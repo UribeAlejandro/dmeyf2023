@@ -1,8 +1,8 @@
 import duckdb
 
-path_database = "database/dmeyf.db"
-path_file_raw = "datasets/competencia_02_clase_ternaria.csv"
-path_file_processed = "datasets/competencia_02.csv"
+path_database = "../buckets/b1/database/dmeyf.db"
+path_file_raw = "../buckets/b1/datasets/competencia_02_clase_ternaria.csv"
+path_file_processed = "../buckets/b1/datasets/competencia_02.csv"
 path_file_foto_reporte = "datasets/processed/competencia_02_foto_reporte.csv"
 path_file_clase_ternaria = "datasets/processed/competencia_02_clase_ternaria.csv"
 
@@ -37,54 +37,54 @@ duckdb.sql(
     """
 )
 
-duckdb.sql(
-    """
-        UPDATE competencia_02
-        SET clase_ternaria = targets.clase_ternaria
-        FROM targets
-        WHERE
-            competencia_02.numero_de_cliente = targets.numero_de_cliente
-            AND competencia_02.foto_mes = targets.foto_mes;
-        """
-)
+# duckdb.sql(
+#     """
+#         UPDATE competencia_02
+#         SET clase_ternaria = targets.clase_ternaria
+#         FROM targets
+#         WHERE
+#             competencia_02.numero_de_cliente = targets.numero_de_cliente
+#             AND competencia_02.foto_mes = targets.foto_mes;
+#         """
+# )
 
+#
+# duckdb.sql(
+#     """
+#         CREATE OR REPLACE TABLE competencia_02_vw_mes_reporte AS (
+#             SELECT
+#                 foto_mes
+#                 , COUNT(*) as total
+#             FROM competencia_02
+#             GROUP BY foto_mes
+#         );
+#         """
+# )
 
-duckdb.sql(
-    """
-        CREATE OR REPLACE TABLE competencia_02_vw_mes_reporte AS (
-            SELECT
-                foto_mes
-                , COUNT(*) as total
-            FROM competencia_02
-            GROUP BY foto_mes
-        );
-        """
-)
-
-duckdb.sql(
-    """
-        CREATE OR REPLACE TABLE competencia_02_vw_clase_ternaria AS
-            SELECT
-                clase_ternaria
-                , COUNT(*) as total
-            FROM competencia_02
-            GROUP BY clase_ternaria;
-        """
-)
-
-duckdb.sql(
-    f"""
-        COPY competencia_02_vw_mes_reporte
-        TO '{path_file_foto_reporte}' (FORMAT CSV, HEADER);
-        """
-)
-
-duckdb.sql(
-    f"""
-        COPY competencia_02_vw_clase_ternaria
-        TO '{path_file_clase_ternaria}' (FORMAT CSV, HEADER);
-        """
-)
+# duckdb.sql(
+#     """
+#         CREATE OR REPLACE TABLE competencia_02_vw_clase_ternaria AS
+#             SELECT
+#                 clase_ternaria
+#                 , COUNT(*) as total
+#             FROM competencia_02
+#             GROUP BY clase_ternaria;
+#         """
+# )
+#
+# duckdb.sql(
+#     f"""
+#         COPY competencia_02_vw_mes_reporte
+#         TO '{path_file_foto_reporte}' (FORMAT CSV, HEADER);
+#         """
+# )
+#
+# duckdb.sql(
+#     f"""
+#         COPY competencia_02_vw_clase_ternaria
+#         TO '{path_file_clase_ternaria}' (FORMAT CSV, HEADER);
+#         """
+# )
 
 duckdb.sql(
     f"""
