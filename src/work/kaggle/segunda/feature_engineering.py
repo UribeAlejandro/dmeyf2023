@@ -6,9 +6,7 @@ path_file_processed = "datasets/competencia_02.csv"
 path_file_foto_reporte = "datasets/processed/competencia_02_foto_reporte.csv"
 path_file_clase_ternaria = "datasets/processed/competencia_02_clase_ternaria.csv"
 
-con = duckdb.connect(path_database)
-
-con.sql(
+duckdb.sql(
     f"""
         CREATE OR REPLACE TABLE competencia_02 AS (
             SELECT
@@ -18,7 +16,7 @@ con.sql(
         """
 )
 
-con.sql(
+duckdb.sql(
     """
     CREATE OR REPLACE TABLE competencia_02 AS (
         SELECT
@@ -39,14 +37,7 @@ con.sql(
     """
 )
 
-con.sql(
-    """
-        ALTER TABLE competencia_02
-        ADD COLUMN clase_ternaria VARCHAR(10);
-        """
-)
-
-con.sql(
+duckdb.sql(
     """
         UPDATE competencia_02
         SET clase_ternaria = targets.clase_ternaria
@@ -58,7 +49,7 @@ con.sql(
 )
 
 
-con.sql(
+duckdb.sql(
     """
         CREATE OR REPLACE TABLE competencia_02_vw_mes_reporte AS (
             SELECT
@@ -70,7 +61,7 @@ con.sql(
         """
 )
 
-con.sql(
+duckdb.sql(
     """
         CREATE OR REPLACE TABLE competencia_02_vw_clase_ternaria AS
             SELECT
@@ -81,25 +72,25 @@ con.sql(
         """
 )
 
-con.sql(
+duckdb.sql(
     f"""
         COPY competencia_02_vw_mes_reporte
         TO '{path_file_foto_reporte}' (FORMAT CSV, HEADER);
         """
 )
 
-con.sql(
+duckdb.sql(
     f"""
         COPY competencia_02_vw_clase_ternaria
         TO '{path_file_clase_ternaria}' (FORMAT CSV, HEADER);
         """
 )
 
-con.sql(
+duckdb.sql(
     f"""
         COPY competencia_02
         TO '{path_file_processed}' (FORMAT CSV, HEADER);
         """
 )
 
-con.close()
+duckdb.close()
