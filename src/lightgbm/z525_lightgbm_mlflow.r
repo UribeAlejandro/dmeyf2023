@@ -2,6 +2,11 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
+library("mlflow")
+mlflow::install_mlflow()
+system(paste("pip install -U mlflow"))
+Sys.setenv(MLFLOW_BIN=system("which mlflow"))
+Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -9,7 +14,6 @@ gc() # garbage collection
 
 require("data.table")
 require("lightgbm")
-require("mlflow")
 
 
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
