@@ -1,6 +1,7 @@
 # Other
 .DS_Store
 *.db
+mlruns/
 
 #Archivos que considero datasets grandes, lastima que git no lo permita nativamente
 *.csv
