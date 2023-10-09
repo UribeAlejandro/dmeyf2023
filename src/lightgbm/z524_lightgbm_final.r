@@ -7,6 +7,18 @@
 rm(list = ls()) # remove all objects
 gc() # garbage collection
 
+############# Start mlflow ################
+#In a terminal: mlflow server --backend-store-uri ~/buckets/b1/mlruns
+
+Sys.setenv(MLFLOW_BIN=system("which mlflow"))
+Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
+
+#install.packages("mlflow", version="2.7.1")
+library(mlflow)
+
+mlflow_set_tracking_uri("http://127.0.0.1:5000")
+require("carrier")
+
 require("data.table")
 require("lightgbm")
 
@@ -22,14 +34,24 @@ PARAM$input$dataset <- "./datasets/competencia_02.csv"
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
-PARAM$finalmodel$semilla <- 100057
+PARAM$finalmodel$semilla <- 200177
 
-PARAM$finalmodel$num_iterations <- 4928
-PARAM$finalmodel$learning_rate <- 0.0189943331895954
-PARAM$finalmodel$feature_fraction <- 0.892623977897483
-PARAM$finalmodel$min_data_in_leaf <- 785
-PARAM$finalmodel$num_leaves <- 666
+PARAM$finalmodel$num_iterations <- 857
+PARAM$finalmodel$learning_rate <- 0.153978
+PARAM$finalmodel$feature_fraction <- 0.749071
+PARAM$finalmodel$min_data_in_leaf <- 864
+PARAM$finalmodel$num_leaves <- 1012
 
+
+PARAM$finalmodel$first_metric_only <- TRUE
+PARAM$finalmodel$boost_from_average <- TRUE
+PARAM$finalmodel$feature_pre_filter <- FALSE
+PARAM$finalmodel$verbosity <- -100
+PARAM$finalmodel$max_depth <- -1
+PARAM$finalmodel$min_gain_to_split <- 0
+PARAM$finalmodel$lambda_l1 <- 0
+PARAM$finalmodel$lambda_l2 <- 0
+PARAM$finalmodel$force_row_wise <- TRUE
 
 PARAM$finalmodel$max_bin <- 31
 
@@ -80,19 +102,29 @@ dtrain <- lgb.Dataset(
 
 # genero el modelo
 # estos hiperparametros  salieron de una laaarga Optmizacion Bayesiana
-modelo <- lgb.train(
-  data = dtrain,
-  param = list(
-    objective = "binary",
-    max_bin = PARAM$finalmodel$max_bin,
-    learning_rate = PARAM$finalmodel$learning_rate,
-    num_iterations = PARAM$finalmodel$num_iterations,
-    num_leaves = PARAM$finalmodel$num_leaves,
-    min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
-    feature_fraction = PARAM$finalmodel$feature_fraction,
-    seed = PARAM$finalmodel$semilla
+with(mlflow_start_run(), {
+  modelo <- lgb.train(
+    data = dtrain,
+    param = list(
+      objective = "binary",
+      max_bin = PARAM$finalmodel$max_bin,
+      learning_rate = PARAM$finalmodel$learning_rate,
+      num_iterations = PARAM$finalmodel$num_iterations,
+      num_leaves = PARAM$finalmodel$num_leaves,
+      min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
+      feature_fraction = PARAM$finalmodel$feature_fraction,
+      seed = PARAM$finalmodel$semilla
+    )
   )
-)
+
+  mlflow_log_param("max_bin", PARAM$finalmodel$max_bin)
+  mlflow_log_param("learning_rate", PARAM$finalmodel$learning_rate)
+  mlflow_log_param("num_iterations", PARAM$finalmodel$num_iterations)
+  mlflow_log_param("num_leaves", PARAM$finalmodel$num_leaves)
+  mlflow_log_param("min_data_in_leaf", PARAM$finalmodel$min_data_in_leaf)
+  mlflow_log_param("feature_fraction", PARAM$finalmodel$feature_fraction)
+  mlflow_log_param("seed", PARAM$finalmodel$semilla)
+})
 
 #--------------------------------------
 # ahora imprimo la importancia de variables
@@ -100,8 +132,8 @@ tb_importancia <- as.data.table(lgb.importance(modelo))
 archivo_importancia <- "impo.txt"
 
 fwrite(tb_importancia,
-  file = archivo_importancia,
-  sep = "\t"
+       file = archivo_importancia,
+       sep = "\t"
 )
 
 #--------------------------------------
@@ -122,8 +154,8 @@ tb_entrega[, prob := prediccion]
 
 # grabo las probabilidad del modelo
 fwrite(tb_entrega,
-  file = "prediccion.txt",
-  sep = "\t"
+       file = "prediccion.txt",
+       sep = "\t"
 )
 
 # ordeno por probabilidad descendente
@@ -142,8 +174,8 @@ for (envios in cortes) {
   tb_entrega[1:envios, Predicted := 1L]
 
   fwrite(tb_entrega[, list(numero_de_cliente, Predicted)],
-    file = paste0(PARAM$experimento, "_", envios, ".csv"),
-    sep = ","
+         file = paste0(PARAM$experimento, "_", envios, ".csv"),
+         sep = ","
   )
 }
 

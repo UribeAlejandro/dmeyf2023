@@ -66,11 +66,32 @@ duckdb.sql(
             LAG(mtarjeta_visa_consumo, 1) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mtarjeta_visa_consumo_lag_1,
             LAG(mtarjeta_visa_consumo, 2) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mtarjeta_visa_consumo_lag_2,
             LAG(mtarjeta_visa_consumo, 3) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mtarjeta_visa_consumo_lag_3,
-            LAG(mtarjeta_visa_consumo, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mtarjeta_visa_consumo_lag_4
+            LAG(mtarjeta_visa_consumo, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mtarjeta_visa_consumo_lag_4,
+
+            -- mrentabilidad_annual
+            LAG(mrentabilidad_annual, 1) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_1,
+            LAG(mrentabilidad_annual, 2) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_2,
+            LAG(mrentabilidad_annual, 3) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_3,
+            LAG(mrentabilidad_annual, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_4,
+
+            -- mpasivos_margen
+            LAG(mpasivos_margen, 1) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_1,
+            LAG(mpasivos_margen, 2) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_2,
+            LAG(mpasivos_margen, 3) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_3,
+            LAG(mpasivos_margen, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_4
 
         FROM competencia_02
         ORDER BY numero_de_cliente, foto_mes
     );
+    """
+)
+
+duckdb.sql(
+    """CREATE OR REPLACE TABLE competencia_02 AS (
+        SELECT *
+        FROM competencia_02
+        WHERE foto_mes IN (202101, 202102, 202103, 202104, 202105, 202107)
+    )
     """
 )
 

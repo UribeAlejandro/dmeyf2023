@@ -3,7 +3,6 @@
 #  16 GB memoria RAM
 
 library("mlflow")
-mlflow::install_mlflow()
 system(paste("pip install -U mlflow"))
 Sys.setenv(MLFLOW_BIN=system("which mlflow"))
 Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
