@@ -72,13 +72,7 @@ duckdb.sql(
             LAG(mrentabilidad_annual, 1) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_1,
             LAG(mrentabilidad_annual, 2) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_2,
             LAG(mrentabilidad_annual, 3) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_3,
-            LAG(mrentabilidad_annual, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_4,
-
-            -- mpasivos_margen
-            LAG(mpasivos_margen, 1) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_1,
-            LAG(mpasivos_margen, 2) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_2,
-            LAG(mpasivos_margen, 3) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_3,
-            LAG(mpasivos_margen, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mpasivos_margen_lag_4
+            LAG(mrentabilidad_annual, 4) OVER (PARTITION BY numero_de_cliente ORDER BY foto_mes) AS mrentabilidad_annual_lag_4
 
         FROM competencia_02
         ORDER BY numero_de_cliente, foto_mes

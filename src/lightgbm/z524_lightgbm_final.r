@@ -15,9 +15,9 @@ Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
 
 #install.packages("mlflow", version="2.7.1")
 library(mlflow)
+require("carrier")
 
 mlflow_set_tracking_uri("http://127.0.0.1:5000")
-require("carrier")
 
 require("data.table")
 require("lightgbm")
@@ -62,6 +62,8 @@ setwd("~/buckets/b1")
 
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
+
+print(names(dataset))
 
 
 #--------------------------------------
@@ -124,59 +126,60 @@ with(mlflow_start_run(), {
   mlflow_log_param("min_data_in_leaf", PARAM$finalmodel$min_data_in_leaf)
   mlflow_log_param("feature_fraction", PARAM$finalmodel$feature_fraction)
   mlflow_log_param("seed", PARAM$finalmodel$semilla)
+
+  #--------------------------------------
+  # ahora imprimo la importancia de variables
+  tb_importancia <- as.data.table(lgb.importance(modelo))
+  archivo_importancia <- "impo.txt"
+
+  fwrite(tb_importancia,
+         file = archivo_importancia,
+         sep = "\t"
+  )
+
+  #--------------------------------------
+
+
+  # aplico el modelo a los datos sin clase
+  dapply <- dataset[foto_mes == PARAM$input$future]
+
+  # aplico el modelo a los datos nuevos
+  prediccion <- predict(
+    modelo,
+    data.matrix(dapply[, campos_buenos, with = FALSE])
+  )
+
+  # genero la tabla de entrega
+  tb_entrega <- dapply[, list(numero_de_cliente, foto_mes)]
+  tb_entrega[, prob := prediccion]
+
+  # grabo las probabilidad del modelo
+  fwrite(tb_entrega,
+         file = "prediccion.txt",
+         sep = "\t"
+  )
+
+  # ordeno por probabilidad descendente
+  setorder(tb_entrega, -prob)
+
+
+  # genero archivos con los  "envios" mejores
+  # deben subirse "inteligentemente" a Kaggle para no malgastar submits
+  # si la palabra inteligentemente no le significa nada aun
+  # suba TODOS los archivos a Kaggle
+  # espera a la siguiente clase sincronica en donde el tema sera explicado
+
+  cortes <- seq(8000, 13000, by = 500)
+  for (envios in cortes) {
+    tb_entrega[, Predicted := 0L]
+    tb_entrega[1:envios, Predicted := 1L]
+
+    fwrite(tb_entrega[, list(numero_de_cliente, Predicted)],
+           file = paste0(PARAM$experimento, "_", envios, ".csv"),
+           sep = ","
+    )
+  }
 })
 
-#--------------------------------------
-# ahora imprimo la importancia de variables
-tb_importancia <- as.data.table(lgb.importance(modelo))
-archivo_importancia <- "impo.txt"
-
-fwrite(tb_importancia,
-       file = archivo_importancia,
-       sep = "\t"
-)
-
-#--------------------------------------
-
-
-# aplico el modelo a los datos sin clase
-dapply <- dataset[foto_mes == PARAM$input$future]
-
-# aplico el modelo a los datos nuevos
-prediccion <- predict(
-  modelo,
-  data.matrix(dapply[, campos_buenos, with = FALSE])
-)
-
-# genero la tabla de entrega
-tb_entrega <- dapply[, list(numero_de_cliente, foto_mes)]
-tb_entrega[, prob := prediccion]
-
-# grabo las probabilidad del modelo
-fwrite(tb_entrega,
-       file = "prediccion.txt",
-       sep = "\t"
-)
-
-# ordeno por probabilidad descendente
-setorder(tb_entrega, -prob)
-
-
-# genero archivos con los  "envios" mejores
-# deben subirse "inteligentemente" a Kaggle para no malgastar submits
-# si la palabra inteligentemente no le significa nada aun
-# suba TODOS los archivos a Kaggle
-# espera a la siguiente clase sincronica en donde el tema sera explicado
-
-cortes <- seq(8000, 13000, by = 500)
-for (envios in cortes) {
-  tb_entrega[, Predicted := 0L]
-  tb_entrega[1:envios, Predicted := 1L]
-
-  fwrite(tb_entrega[, list(numero_de_cliente, Predicted)],
-         file = paste0(PARAM$experimento, "_", envios, ".csv"),
-         sep = ","
-  )
-}
 
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")
