@@ -7,6 +7,15 @@
 rm(list = ls()) # remove all objects
 gc() # garbage collection
 
+############# Start mlflow ################
+#In a terminal: mlflow server --backend-store-uri ~/buckets/b1/mlruns
+library(mlflow)
+require("carrier")
+
+Sys.setenv(MLFLOW_BIN=system("which mlflow"))
+Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
+mlflow_set_tracking_uri("http://127.0.0.1:5000")
+
 require("data.table")
 require("lightgbm")
 
@@ -22,7 +31,7 @@ PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
-PARAM$finalmodel$semilla <- 102191
+PARAM$finalmodel$semilla <- 200177
 
 # hiperparametros intencionalmente NO optimos
 PARAM$finalmodel$optim$num_iterations <- 730

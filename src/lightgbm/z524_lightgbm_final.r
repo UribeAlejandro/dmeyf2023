@@ -9,14 +9,11 @@ gc() # garbage collection
 
 ############# Start mlflow ################
 #In a terminal: mlflow server --backend-store-uri ~/buckets/b1/mlruns
-
-Sys.setenv(MLFLOW_BIN=system("which mlflow"))
-Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
-
-#install.packages("mlflow", version="2.7.1")
 library(mlflow)
 require("carrier")
 
+Sys.setenv(MLFLOW_BIN=system("which mlflow"))
+Sys.setenv(MLFLOW_PYTHON_BIN=system("which python"))
 mlflow_set_tracking_uri("http://127.0.0.1:5000")
 
 require("data.table")

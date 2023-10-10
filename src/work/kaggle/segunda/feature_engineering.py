@@ -84,59 +84,10 @@ duckdb.sql(
     """CREATE OR REPLACE TABLE competencia_02 AS (
         SELECT *
         FROM competencia_02
-        WHERE foto_mes IN (202101, 202102, 202103, 202104, 202105, 202107)
+        WHERE foto_mes IN (202105, 202104, 202010, 202011, 202012, 202101, 202102, 202103)
     )
     """
 )
-
-# duckdb.sql(
-#     """
-#         UPDATE competencia_02
-#         SET clase_ternaria = targets.clase_ternaria
-#         FROM targets
-#         WHERE
-#             competencia_02.numero_de_cliente = targets.numero_de_cliente
-#             AND competencia_02.foto_mes = targets.foto_mes;
-#         """
-# )
-
-#
-# duckdb.sql(
-#     """
-#         CREATE OR REPLACE TABLE competencia_02_vw_mes_reporte AS (
-#             SELECT
-#                 foto_mes
-#                 , COUNT(*) as total
-#             FROM competencia_02
-#             GROUP BY foto_mes
-#         );
-#         """
-# )
-
-# duckdb.sql(
-#     """
-#         CREATE OR REPLACE TABLE competencia_02_vw_clase_ternaria AS
-#             SELECT
-#                 clase_ternaria
-#                 , COUNT(*) as total
-#             FROM competencia_02
-#             GROUP BY clase_ternaria;
-#         """
-# )
-#
-# duckdb.sql(
-#     f"""
-#         COPY competencia_02_vw_mes_reporte
-#         TO '{path_file_foto_reporte}' (FORMAT CSV, HEADER);
-#         """
-# )
-#
-# duckdb.sql(
-#     f"""
-#         COPY competencia_02_vw_clase_ternaria
-#         TO '{path_file_clase_ternaria}' (FORMAT CSV, HEADER);
-#         """
-# )
 
 duckdb.sql(
     f"""
