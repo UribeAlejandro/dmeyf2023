@@ -84,7 +84,7 @@ duckdb.sql(
     """CREATE OR REPLACE TABLE competencia_02 AS (
         SELECT *
         FROM competencia_02
-        WHERE foto_mes IN (202105, 202104, 202010, 202011, 202012, 202101, 202102, 202103)
+        WHERE foto_mes IN (202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105, 202107)
     )
     """
 )
