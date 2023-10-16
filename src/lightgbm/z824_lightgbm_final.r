@@ -31,14 +31,14 @@ PARAM$input$dataset <- "./datasets/competencia_02.csv"
 PARAM$input$training <- c(202012, 202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
-PARAM$finalmodel$semilla <- 200177
+PARAM$finalmodel$semilla <- 210913
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 608
-PARAM$finalmodel$optim$learning_rate <- 0.10043
-PARAM$finalmodel$optim$feature_fraction <- 0.688444
-PARAM$finalmodel$optim$min_data_in_leaf <- 26303
-PARAM$finalmodel$optim$num_leaves <- 850
+PARAM$finalmodel$optim$num_iterations <- 821
+PARAM$finalmodel$optim$learning_rate <- 0.121842089716811
+PARAM$finalmodel$optim$feature_fraction <- 	0.716726674084202
+PARAM$finalmodel$optim$min_data_in_leaf <- 36896
+PARAM$finalmodel$optim$num_leaves <- 797
 
 
 # Hiperparametros FIJOS de  lightgbm

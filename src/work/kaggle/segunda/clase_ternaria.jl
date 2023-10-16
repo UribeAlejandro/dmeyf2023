@@ -6,11 +6,14 @@ using CSV,  DataFrames;
 
 periodo_anterior(x::Integer) =  x % 100 > 1  ?  x-1  : 12 + (div(x,100) -1) * 100
 
-df = CSV.read("datasets/competencia_02_crudo.csv", DataFrame)
+df = CSV.read("datasets/raw/competencia_02_crudo.csv", DataFrame)
 sort!(df, [:numero_de_cliente, :foto_mes])
 
 global periodo_ultimo = maximum( df.foto_mes )
 global periodo_anteultimo = periodo_anterior( periodo_ultimo)
+
+println( "periodo_ultimo: ", periodo_ultimo )
+println( "periodo_anteultimo: ", periodo_anteultimo )
 
 # assign most common class values
 df.clase_ternaria = @. ifelse( df.foto_mes < periodo_anteultimo, "CONTINUA", missing )
